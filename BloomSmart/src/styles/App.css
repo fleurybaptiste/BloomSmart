@@ -1,0 +1,26 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #011323;
+}
+
+.action_button{
+  background-color: rgba(238, 238, 238, 0.902);
+}
+.home_logo {
+  width: 50%;
+}
+
+.on_button {
+  width: 3rem;
+}
+
+.off_button {
+  width: 3rem;
+}
+
+.vmc {
+  width: 3rem;
+}
