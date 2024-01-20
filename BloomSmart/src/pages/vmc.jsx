@@ -1,6 +1,8 @@
 /** @format */
 
-import '../styles/App.css';
+import { useState, useEffect } from 'react';
+import '../styles/graph.css';
+import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -12,11 +14,13 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import '../styles/App.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const options = {
     responsive: true,
+    maintainAspectRatio: false, // Ajoutez ceci pour maintenir l'aspect ratio
     plugins: {
         legend: {
             position: 'top',
@@ -26,73 +30,71 @@ const options = {
             text: 'Graphique',
         },
     },
-};
-
-const data = {
-    labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet'],
-    datasets: [
-        {
-            label: 'Humidité',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+    scales: {
+        y: {
+            // Ajustements pour l'axe Y
+            beginAtZero: true,
+            ticks: {
+                stepSize: 1, // Ajustez selon vos données
+            },
         },
-        {
-            label: 'Température',
-            data: [22, 19, 23, 24, 20, 25, 26],
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        x: {
+            // Ajustements pour l'axe X
+            ticks: {
+                maxTicksLimit: 20,
+                autoSkip: true,
+                maxRotation: 45,
+                minRotation: 45,
+            },
         },
-    ],
-};
-
-const labels = Array.from({ length: 60 }, (_, i) => `${i} min`);
-
-const humidityData = {
-    labels,
-    datasets: [
-        {
-            label: 'Humidité',
-            data: Array.from({ length: 60 }, () => Math.random() * 100),
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        },
-    ],
-};
-
-const temperatureData = {
-    labels,
-    datasets: [
-        {
-            label: 'Température',
-            data: Array.from({ length: 60 }, () => Math.random() * 30),
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        },
-    ],
+    },
 };
 
 function App() {
+    const [sensorData, setSensorData] = useState({ temperatures: [], humidities: [], labels: [] });
+
+    const fetchData = () => {
+        axios
+            .get('http://192.168.1.20:3000/api/data')
+            .then((response) => {
+                const data = response.data;
+                const temperatures = data.map((item) => item.temperature);
+                const humidities = data.map((item) => item.humidity);
+                const labels = data.map((item) => new Date(item.createdAt).toLocaleTimeString());
+                setSensorData({ temperatures, humidities, labels });
+            })
+            .catch((error) => console.error('Erreur lors de la récupération des données:', error));
+    };
+
+    useEffect(() => {
+        fetchData(); // Charger les données initialement
+        const interval = setInterval(fetchData, 5000); // Rafraîchir toutes les 5 secondes
+
+        return () => clearInterval(interval); // Nettoyer l'intervalle quand le composant est démonté
+    }, []);
+
+    const lineData = {
+        labels: sensorData.labels,
+        datasets: [
+            {
+                label: 'Humidité',
+                data: sensorData.humidities,
+                borderColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            },
+            {
+                label: 'Température',
+                data: sensorData.temperatures,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            },
+        ],
+    };
+
     return (
         <>
-            <div>
-                <h1 className="module_title">VMC</h1>
-                <Line options={options} data={data} />
-            </div>
-
-            <div>
-                <h2>Humidité par Minute</h2>
-                <Line
-                    options={{ ...options, title: { ...options.title, text: 'Humidité par Minute' } }}
-                    data={humidityData}
-                />
-            </div>
-            <div>
-                <h2>Température par Minute</h2>
-                <Line
-                    options={{ ...options, title: { ...options.title, text: 'Température par Minute' } }}
-                    data={temperatureData}
-                />
+            <div className="chart-container">
+                <Line options={options} data={lineData} />
             </div>
         </>
     );
