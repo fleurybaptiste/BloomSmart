@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import '../styles/graph.css';
 import axios from 'axios';
 import Spinner from '../components/spinner';
+import { FaThermometerHalf } from 'react-icons/fa'; // Pour l'icône du thermomètre
+import { MdOutlineWaterDrop } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -24,7 +26,8 @@ const options = {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            position: 'top',
+            // position: 'top',
+            display: false,
         },
         title: {
             display: true,
@@ -33,14 +36,24 @@ const options = {
     },
     scales: {
         y: {
-            beginAtZero: true,
+            beginAtZero: false,
+            grid: {
+                color: 'grey', // Rend le quadrillage de l'axe Y blanc
+            },
             ticks: {
-                stepSize: 1,
+                stepSize: 0.5,
+                // callback: function (value) {
+                //     // Cette fonction détermine ce qui est affiché sur chaque étiquette de l'axe Y
+                //     return value.toFixed(1); // Affiche une seule décimale
+                // },
             },
         },
         x: {
+            grid: {
+                color: 'grey', // Rend le quadrillage de l'axe X blanc
+            },
             ticks: {
-                maxTicksLimit: 100,
+                // maxTicksLimit: 100,
                 autoSkip: true,
                 maxRotation: 45,
                 minRotation: 45,
@@ -126,37 +139,52 @@ function App() {
 
     return (
         <>
-            <div style={{ display: 'flex' }}>
-                <div style={{ width: '20%', marginRight: '10px' }}>
-                    <div>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    height: '100vh',
+                }}
+            >
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '90%', marginBottom: '20px' }}>
+                    <div style={{ width: '45%' }}>
                         <h3>Temps Réel</h3>
-                        <br />
-                        <hr />
-                        <p>Température: {latestValues.temperature.toFixed(2)}°C</p>
-                        <br />
-                        <p>Humidité: {latestValues.humidity.toFixed(2)}%</p>
-                        <br />
+                        <p>
+                            <FaThermometerHalf style={{ color: 'red' }} /> {latestValues.temperature.toFixed(2)}°C
+                        </p>
+                        <p>
+                            <MdOutlineWaterDrop style={{ color: 'lightblue' }} /> {latestValues.humidity.toFixed(2)}%
+                        </p>
                     </div>
-                    <hr />
-                    <br />
-                    <div>
+
+                    <div style={{ width: '45%' }}>
                         <h3>Moyennes</h3>
-                        <br />
-                        <hr />
-                        <p>Température: {averages.avgTemperature.toFixed(2)}°C</p>
-                        <br />
-                        <p>Humidité: {averages.avgHumidity.toFixed(2)}%</p>
-                        <br />
+                        <p>
+                            <FaThermometerHalf style={{ color: 'red' }} /> {averages.avgTemperature.toFixed(2)}°C
+                        </p>
+                        <p>
+                            <MdOutlineWaterDrop style={{ color: 'lightblue' }} /> {averages.avgHumidity.toFixed(2)}%
+                        </p>
                     </div>
                 </div>
-                <div className="chart-container" style={{ width: '80%' }}>
-                    {isLoading ? <Spinner /> : <Line options={options} data={lineData} />}
+
+                <div className="chart-container" style={{ width: '90%' }}>
+                    {isLoading ? (
+                        <Spinner />
+                    ) : (
+                        <>
+                            <Line options={options} data={lineData} />
+                        </>
+                    )}
                 </div>
-            </div>
-            <div>
-                <button onClick={() => setCurrentPeriod('hour')}>Dernière Heure</button>
-                <button onClick={() => setCurrentPeriod('day')}>Dernière Journée</button>
-                <button onClick={() => setCurrentPeriod('month')}>Dernier Mois</button>
+
+                <div style={{ marginTop: '20px' }}>
+                    <button onClick={() => setCurrentPeriod('hour')}>Dernière Heure</button>
+                    <button onClick={() => setCurrentPeriod('day')}>Dernière Journée</button>
+                    <button onClick={() => setCurrentPeriod('month')}>Dernier Mois</button>
+                </div>
             </div>
         </>
     );
