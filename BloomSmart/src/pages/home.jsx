@@ -3,9 +3,12 @@
 import { useNavigate } from 'react-router-dom';
 import '../styles/App.css';
 import homeLogo from '../images/logo_home.png';
-import On from '../images/buttons/on.png';
-import Off from '../images/buttons/off.png';
-import Vmc from '../images/buttons/vmc.png';
+import { PiFanFill } from 'react-icons/pi';
+import { FaHotjar, FaLightbulb, FaPowerOff } from 'react-icons/fa';
+import { BsAlexa } from 'react-icons/bs';
+import { MdOutlet } from 'react-icons/md';
+// import On from '../images/buttons/on.png';
+// import Off from '../images/buttons/off.png';
 
 function OnOff() {
     const result = 1 + 1;
@@ -20,16 +23,30 @@ function App() {
         <>
             <img className="home_logo" src={homeLogo} alt="logo" />
             <div className="action_button">
-                <img className="vmc" onClick={() => navigate('/vmc')} src={Vmc} alt="VMC" />
-                <button onClick={() => navigate('/vmc')}>VMC</button>
-                <button onClick={() => navigate('/radiateur')}>Radiateur</button>
-                <button onClick={() => navigate('/lumieres')}>Lumières</button>
-                <button onClick={() => navigate('/alexa')}>Alexa</button>
-                <button onClick={() => navigate('/prises')}>Prises</button>
+                <button onClick={() => navigate('/vmc')}>
+                    <PiFanFill />
+                </button>
+                <button onClick={() => navigate('/radiateur')}>
+                    <FaHotjar />
+                </button>
+                <button onClick={() => navigate('/lumieres')}>
+                    <FaLightbulb />
+                </button>
+                <button onClick={() => navigate('/alexa')}>
+                    <BsAlexa />
+                </button>
+                <button onClick={() => navigate('/prises')}>
+                    <MdOutlet />
+                </button>
             </div>
             <div className="on_off_button">
-                <img className="on_button" onClick={OnOff} src={On} alt="On" />
-                <img className="off_button" onClick={OnOff} src={Off} alt="Off" />
+                <button className="on_button" onClick={OnOff}>
+                    <FaPowerOff color="green" />
+                </button>
+                <button className="off_button" onClick={OnOff}>
+                    <FaPowerOff color="red" />
+                </button>
+                {/* <img className="off_button" onClick={OnOff} src={Off} alt="Off" /> */}
             </div>
         </>
     );
