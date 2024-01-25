@@ -10,9 +10,15 @@ import { MdOutlet } from 'react-icons/md';
 // import On from '../images/buttons/on.png';
 // import Off from '../images/buttons/off.png';
 
-function OnOff() {
-    const result = 1 + 1;
-    console.log(result);
+function On() {
+    const result = `Mise sous tension`;
+    alert(result);
+    return result;
+}
+
+function Off() {
+    const result = `Mise hors tension`;
+    alert(result);
     return result;
 }
 
@@ -26,7 +32,7 @@ function App() {
                 <button onClick={() => navigate('/vmc')}>
                     <PiFanFill />
                 </button>
-                <button onClick={() => navigate('/radiateur')}>
+                <button onClick={() => navigate('/radiateurs')}>
                     <FaHotjar />
                 </button>
                 <button onClick={() => navigate('/lumieres')}>
@@ -40,10 +46,10 @@ function App() {
                 </button>
             </div>
             <div className="on_off_button">
-                <button className="on_button" onClick={OnOff}>
+                <button className="on_button" onClick={On}>
                     <FaPowerOff color="green" />
                 </button>
-                <button className="off_button" onClick={OnOff}>
+                <button className="off_button" onClick={Off}>
                     <FaPowerOff color="red" />
                 </button>
                 {/* <img className="off_button" onClick={OnOff} src={Off} alt="Off" /> */}
