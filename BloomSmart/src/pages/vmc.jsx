@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import '../styles/graph.css';
 import axios from 'axios';
 import Spinner from '../components/spinner';
-import { FaThermometerHalf } from 'react-icons/fa'; // Pour l'icône du thermomètre
+import { FaThermometerHalf } from 'react-icons/fa';
 import { MdOutlineWaterDrop } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
@@ -27,7 +27,6 @@ const deviceNames = {
     'B4:E6:2D:15:D8:A5': 'Grenier',
     'DC:4F:22:2E:ED:1E': 'Chambre Parents',
     'EC:FA:BC:1D:48:A4': 'Chambre Jules',
-    // ... autres dispositifs ...
 };
 
 function App() {
@@ -49,6 +48,7 @@ function App() {
                 legend: {
                     // position: 'top',
                     display: false,
+                    color: 'white',
                 },
                 title: {
                     display: true,
@@ -59,22 +59,17 @@ function App() {
                 y: {
                     beginAtZero: false,
                     grid: {
-                        color: '#011323np', // Rend le quadrillage de l'axe Y blanc
+                        color: '#011323',
                     },
                     ticks: {
                         stepSize: 0.5,
-                        // callback: function (value) {
-                        //     // Cette fonction détermine ce qui est affiché sur chaque étiquette de l'axe Y
-                        //     return value.toFixed(1); // Affiche une seule décimale
-                        // },
                     },
                 },
                 x: {
                     grid: {
-                        color: '#011323', // Rend le quadrillage de l'axe X blanc
+                        color: '#011323',
                     },
                     ticks: {
-                        // maxTicksLimit: 100,
                         autoSkip: true,
                         maxRotation: 45,
                         minRotation: 45,
@@ -85,11 +80,11 @@ function App() {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (period, sensorId) => {
             setIsLoading(true);
             try {
                 let url = `${API_URL}/`;
-                switch (currentPeriod) {
+                switch (period) {
                     case 'hour':
                         url += 'last-hour';
                         break;
@@ -100,12 +95,20 @@ function App() {
                         url += 'last-month';
                         break;
                     default:
-                        url += 'last-hour'; // valeur par défaut si aucun cas ne correspond
+                        url += 'last-hour';
                 }
                 url += `?deviceId=${selectedSensor}`;
 
                 const response = await axios.get(url);
                 const data = response.data;
+
+                // Alert pour capteur Juju 'EC:FA:BC:1D:48:A4'
+                if (sensorId === 'EC:FA:BC:1D:48:A4') {
+                    const latestData = data[data.length - 1];
+                    if (latestData && latestData.temperature > 22.5) {
+                        window.alert(`Alerte Température: Le capteur 'Chambre Jules' a dépassé 22.5°C`);
+                    }
+                }
                 const averages = calculateAverages(data);
                 const latest = data[data.length - 1] || { temperature: 0, humidity: 0 };
 
@@ -123,7 +126,7 @@ function App() {
             }
         };
 
-        fetchData();
+        fetchData(currentPeriod, selectedSensor);
     }, [currentPeriod, selectedSensor]);
 
     const calculateAverages = (data) => {
@@ -201,7 +204,6 @@ function App() {
                 </div>
 
                 <div style={{ marginTop: '20px' }}>
-                    {/* Sélecteur de capteur */}
                     <select value={selectedSensor} onChange={handleSensorChange}>
                         {sensorList.map((sensor) => (
                             <option key={sensor} value={sensor}>
@@ -210,8 +212,8 @@ function App() {
                         ))}
                     </select>
                     <button onClick={() => setCurrentPeriod('hour')}>Dernière Heure</button>
-                    <button onClick={() => setCurrentPeriod('day')}>Dernière Journée</button>
-                    <button onClick={() => setCurrentPeriod('month')}>Dernier Mois</button>
+                    <button onClick={() => setCurrentPeriod('day')}>{`Aujourd'hui`}</button>
+                    <button onClick={() => setCurrentPeriod('month')}>Mois en cours</button>
                 </div>
             </div>
         </>
